@@ -28,4 +28,9 @@ public class Flight {
 	public void setStatistics(Statistics statistics) {
 		this.statistics = statistics;
 	}
+	@Override
+	public String toString() {
+		return "Flight [flightNumber=" + flightNumber + ", filePath=" + filePath + ", statistics=" + statistics + "]";
+	}
+	
 }

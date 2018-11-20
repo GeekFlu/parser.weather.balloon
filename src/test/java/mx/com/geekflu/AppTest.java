@@ -1,10 +1,13 @@
 package mx.com.geekflu;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import mx.com.geekflu.weather.balloon.model.Statistics;
 import mx.com.geekflu.weather.balloon.service.BalloonWeatherParserService;
 import mx.com.geekflu.weather.balloon.service.BalloonWeatherParserServiceImpl;
+import mx.com.geekflu.weather.balloon.util.Constants;
 
 /**
  * Unit test for simple App.
@@ -20,9 +23,15 @@ public class AppTest {
 	}
 
 	@Test
+	@Ignore
 	public void generate_random_data() {
-		balloonService.generateData("C:\\Users\\luisgonz\\Documents\\balloon_data.txt", 10000000, 10);
+		balloonService.generateData("C:\\Users\\luisgonz\\Documents\\balloon_data.txt", 5010, 10);
 	}
 	
+	@Test
+	public void generate_statistics() {
+		Statistics s = balloonService.calculateAndGenerateOutput("C:\\Users\\luisgonz\\Documents\\balloon_data.txt", Constants.DISTANCE_UNIT_METER, Constants.TEMPERATURE_UNIT_CELSISUS);
+		System.out.println(s);
+	}
 	
 }

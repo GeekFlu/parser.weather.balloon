@@ -7,26 +7,32 @@ package mx.com.geekflu.weather.balloon.model;
  */
 public class DataRow {
 	private String timeStamp;
-	private String location;
-	private String temperature;
+	private int x;
+	private int y;
+	private int temperature;
 	private String observatory;
-	
 	public String getTimeStamp() {
 		return timeStamp;
 	}
 	public void setTimeStamp(String timeStamp) {
 		this.timeStamp = timeStamp;
 	}
-	public String getLocation() {
-		return location;
+	public int getX() {
+		return x;
 	}
-	public void setLocation(String location) {
-		this.location = location;
+	public void setX(int x) {
+		this.x = x;
 	}
-	public String getTemperature() {
+	public int getY() {
+		return y;
+	}
+	public void setY(int y) {
+		this.y = y;
+	}
+	public int getTemperature() {
 		return temperature;
 	}
-	public void setTemperature(String temperature) {
+	public void setTemperature(int temperature) {
 		this.temperature = temperature;
 	}
 	public String getObservatory() {

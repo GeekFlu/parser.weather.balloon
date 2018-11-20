@@ -25,6 +25,11 @@ public class Constants {
 	public static final String TEMPERATURE_UNIT_KELVIN = "kelvin";
 	public static final int DEFAULT_SIZE_BLOCK = 5000;
 	
+	public static final String OBSERVATORY_AU = "AU";
+	public static final String OBSERVATORY_US = "US";
+	public static final String OBSERVATORY_FR = "FR";
+	public static final String OBSERVATORY_OTHERS = "OTHERS";
+	
 	public static String[] OBSERVATORIES_NAME = {"AU", "US", "FR", "OTHERS"};
 	public static Map<String, Observatory> OBSERVATORIES = new HashMap<>();
 	static {

@@ -101,7 +101,7 @@ public class WeatherBalloonStatistics {
 			if (isGenerateFileData) {
 				ballonService.generateData(fileDataPath, percentage, percentage);
 			} else if(isAccessLog && isAtLeastOneCommand){
-				ballonService.readData(fileDataPath, distanceUnit, tempUnit);
+				ballonService.calculateAndGenerateOutput(fileDataPath, distanceUnit, tempUnit);
 			}else {
 				System.out.println("More arguments needed, these are required: [accesslog]");
 				System.exit(0);
