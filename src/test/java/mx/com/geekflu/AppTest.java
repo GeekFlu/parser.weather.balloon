@@ -32,6 +32,7 @@ public class AppTest extends WeatherBalloonStatistics {
 	}
 	
 	@Test
+	@Ignore
 	public void test_main_generate_outputdata() {
 		String[] args = {"--generate-data=C:\\Users\\luisgonz\\Documents\\balloon_data.txt"};
 		main(args);
