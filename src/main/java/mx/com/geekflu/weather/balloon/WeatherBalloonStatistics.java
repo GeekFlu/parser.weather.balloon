@@ -19,6 +19,7 @@ import mx.com.geekflu.weather.balloon.util.Constants;
  *         as command line arguments ej: java -jar
  *         target/parser-jar-with-dependencies.jar
  *         --command=[meanTemp],[maxTemp],[minTemp],[observations],[totalDistance]
+ *         --temperature-unit=[m][km][miles]
  *         --generate-data=/path/to/file
  *         --balloonWeatherInfoFile=/path/to/file
  *         --ballonNormalizedOutputFile=/path/to/file
