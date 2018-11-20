@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import mx.com.geekflu.weather.balloon.model.CommandNotFoundException;
+import mx.com.geekflu.weather.balloon.model.Statistics;
 import mx.com.geekflu.weather.balloon.service.BalloonWeatherParserService;
 import mx.com.geekflu.weather.balloon.service.BalloonWeatherParserServiceImpl;
 import mx.com.geekflu.weather.balloon.util.Constants;
@@ -17,12 +18,14 @@ import mx.com.geekflu.weather.balloon.util.Constants;
  * @author Luis E. Gonzalez The tool takes "balloonWeatherInfoFile", "command"
  *         as command line arguments ej: java -jar
  *         target/parser-jar-with-dependencies.jar
- *         --command=[meanTemp],[maxTemp],[minTemp],[observations],[totalDistance][ALL]
- *         --generate-data=/path/to/file --fakeDataPercentage=10
- *         --balloonWeatherInfoFile=/home/escanor/Documents/examenes/access.log
+ *         --command=[meanTemp],[maxTemp],[minTemp],[observations],[totalDistance]
+ *         --generate-data=/path/to/file
+ *         --balloonWeatherInfoFile=/path/to/file
+ *         --ballonNormalizedOutputFile=/path/to/file
  */
 public class WeatherBalloonStatistics {
 	private static final String START_ACCESS_LOG_ARGUMENT = "balloonWeatherInfoFile";
+	private static final String START_OUTPUT_FILE_ARGUMENT = "ballonNormalizedOutputFile";
 	private static final CharSequence START_COMMAND_ARGUMENT = "command";
 	private static final CharSequence START_GENERATE_DATA_ARGUMENT = "generate-data";
 	private static final String START_DISTANCE_UNIT_ARGUMENT = "distance-unit";
@@ -37,7 +40,6 @@ public class WeatherBalloonStatistics {
 		COMMAND_MAP.put("observations", "The number of observations from each observatory");
 		COMMAND_MAP.put("totalDistance", "The total distance travelled");
 		COMMAND_MAP.put("generate-data", "Generate a file with");
-		COMMAND_MAP.put("ALL", "ALL Commands will be executed");
 	}
 
 
@@ -46,12 +48,16 @@ public class WeatherBalloonStatistics {
 		boolean isAccessLog = false;
 		boolean isAtLeastOneCommand = false;
 		boolean isGenerateFileData = false;
+		boolean isOutPutFile = false;
 		
 		String accessLogPath = null;
+		String outputFileNormalized = null;
 		String fileDataPath = null;
 		int percentage = 10;
-		String distanceUnit = null;
-		String tempUnit = null;
+		//default values
+		String distanceUnit = Constants.DISTANCE_UNIT_METER;
+		String tempUnit = Constants.TEMPERATURE_UNIT_FAHRENHEIT;
+		Set<String> setCommands = new HashSet<>();
 		
 		
 		try {
@@ -61,9 +67,8 @@ public class WeatherBalloonStatistics {
 					isAccessLog = true;
 				} else if (arg.trim().contains(START_COMMAND_ARGUMENT)) {
 					String rawcommands = getValue(arg.trim());
-					Set<String> set = new HashSet<>();
-					set.addAll(Arrays.asList(rawcommands.split(Constants.PIPE)));
-					verifyCommands(set);
+					setCommands.addAll(Arrays.asList(rawcommands.split(Constants.COMMA)));
+					verifyCommands(setCommands);
 					isAtLeastOneCommand = true;
 				}else if(arg.trim().contains(START_GENERATE_DATA_ARGUMENT)) {
 					fileDataPath = getValue(arg.trim());
@@ -94,15 +99,32 @@ public class WeatherBalloonStatistics {
 						System.out.println("Default temperature unit: celsius");
 						tempUnit = Constants.TEMPERATURE_UNIT_CELSISUS;
 					}
+				}else if(arg.trim().contains(START_OUTPUT_FILE_ARGUMENT)) {
+					outputFileNormalized = getValue(arg.trim());
+					isOutPutFile = true;
 				}
 			}
 
 			if (isGenerateFileData) {
-				ballonService.generateData(fileDataPath, percentage, percentage);
-			} else if(isAccessLog && isAtLeastOneCommand){
-				ballonService.calculateAndGenerateOutput(fileDataPath, distanceUnit, tempUnit);
+				ballonService.generateData(fileDataPath, 500000, percentage);
+			} else if(isAccessLog && isAtLeastOneCommand && isOutPutFile){
+				Statistics s = ballonService.calculateAndGenerateOutput(accessLogPath, outputFileNormalized, distanceUnit, tempUnit);
+				for(String command : setCommands) {
+					if(command.equalsIgnoreCase("meanTemp")) {
+						System.out.println("Mean Temperature in [" + tempUnit + "] : " + s.getMeanTemperature() );
+					}else if(command.equalsIgnoreCase("maxTemp")) {
+						System.out.println("MAX Temperature in [" + tempUnit + "] : " + s.getMaxTemperature() );
+					}else if(command.equalsIgnoreCase("minTemp")) {
+						System.out.println("MIN Temperature in [" + tempUnit + "] : " + s.getMinTemperature() );
+					}else if(command.equalsIgnoreCase("observations")) {
+						System.out.println("Observatios: " + s.getObservationsByObservatory());
+					}else if(command.equalsIgnoreCase("totalDistance")) {
+						System.out.println("Total Distance: " + s.getTotalDistanceTravelled());
+					}
+					
+				}
 			}else {
-				System.out.println("More arguments needed, these are required: [accesslog]");
+				System.out.println("More arguments needed, these are required: [balloonWeatherInfoFile, command and ballonNormalizedOutputFile");
 				System.exit(0);
 			}
 		} catch (CommandNotFoundException e) {

@@ -8,6 +8,6 @@ import mx.com.geekflu.weather.balloon.model.Statistics;
  *
  */
 public interface BalloonWeatherParserService {
-	Statistics calculateAndGenerateOutput(String filePath, String distanceUnit, String temperatureUnit);
+	Statistics calculateAndGenerateOutput(String filePath, String outputFile, String distanceUnit, String temperatureUnit);
 	void generateData(String filePath, int numLines2Generate, int fakeDataPercentage);
 }

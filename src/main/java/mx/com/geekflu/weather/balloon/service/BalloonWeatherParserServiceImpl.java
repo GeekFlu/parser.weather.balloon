@@ -39,7 +39,7 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 	private Double currentDistanceSum = 0.0;
 
 	@Override
-	public Statistics calculateAndGenerateOutput(String filePath, String distanceUnit, String temperatureUnit) {
+	public Statistics calculateAndGenerateOutput(String filePath, String outputFile, String distanceUnit, String temperatureUnit) {
 		FileInputStream inputStream = null;
 		Scanner sc = null;
 		Statistics st = new Statistics();
@@ -54,7 +54,7 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 				if(dataBlock.size() > Constants.DEFAULT_SIZE_BLOCK) {
 					List<DataRow> convertedDataBlock = convertAndMergeData(dataBlock, temperatureUnit);
 					applyRules(convertedDataBlock, st, distanceUnit);
-					writeDate2File(filePath, convertedDataBlock);
+					writeDate2File(outputFile, convertedDataBlock);
 					counter += convertedDataBlock.size();
 					dataBlock.clear();
 				}
@@ -62,7 +62,7 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 			if(dataBlock.size() > 0) {
 				List<DataRow> convertedDataBlock = convertAndMergeData(dataBlock, temperatureUnit);
 				applyRules(convertedDataBlock, st, distanceUnit);
-				writeDate2File(filePath, convertedDataBlock);
+				writeDate2File(outputFile, convertedDataBlock);
 				counter += convertedDataBlock.size();
 				dataBlock.clear();
 			}
