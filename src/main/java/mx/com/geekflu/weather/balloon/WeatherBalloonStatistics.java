@@ -19,7 +19,7 @@ import mx.com.geekflu.weather.balloon.util.Constants;
  *         as command line arguments ej: java -jar
  *         target/parser-jar-with-dependencies.jar
  *         --command=[meanTemp],[maxTemp],[minTemp],[observations],[totalDistance]
- *         --temperature-unit=[m][km][miles]
+ *         --temperature-unit=[celsius][kelvin]
  *         --generate-data=/path/to/file
  *         --balloonWeatherInfoFile=/path/to/file
  *         --ballonNormalizedOutputFile=/path/to/file
@@ -107,8 +107,11 @@ public class WeatherBalloonStatistics {
 			}
 
 			if (isGenerateFileData) {
+				System.out.println("Generating data file...");
 				ballonService.generateData(fileDataPath, 500000, percentage);
+				System.out.println("Data file has been generated...");
 			} else if(isAccessLog && isAtLeastOneCommand && isOutPutFile){
+				System.out.println("Statistics Generation....");
 				Statistics s = ballonService.calculateAndGenerateOutput(accessLogPath, outputFileNormalized, distanceUnit, tempUnit);
 				for(String command : setCommands) {
 					if(command.equalsIgnoreCase("meanTemp")) {
@@ -131,6 +134,8 @@ public class WeatherBalloonStatistics {
 		} catch (CommandNotFoundException e) {
 			System.out.println(e.getMessage() + "[meanTemp],[maxTemp],[minTemp],[observations],[totalDistance],[ALL]");
 		}
+		System.out.println("Bye BYe");
+		System.exit(0);
 	}
 
 	private static void verifyCommands(Set<String> commands) throws CommandNotFoundException {
