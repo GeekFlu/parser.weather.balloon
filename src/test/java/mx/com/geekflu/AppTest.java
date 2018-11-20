@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import mx.com.geekflu.weather.balloon.WeatherBalloonStatistics;
 import mx.com.geekflu.weather.balloon.model.Statistics;
 import mx.com.geekflu.weather.balloon.service.BalloonWeatherParserService;
 import mx.com.geekflu.weather.balloon.service.BalloonWeatherParserServiceImpl;
@@ -12,7 +13,7 @@ import mx.com.geekflu.weather.balloon.util.Constants;
 /**
  * Unit test for simple App.
  */
-public class AppTest {
+public class AppTest extends WeatherBalloonStatistics {
 	
 	private BalloonWeatherParserService balloonService;
 	
@@ -25,7 +26,7 @@ public class AppTest {
 	@Test
 	@Ignore
 	public void generate_random_data() {
-		balloonService.generateData("C:\\Users\\luisgonz\\Documents\\balloon_data.txt", 5010, 10);
+		balloonService.generateData("C:\\Users\\luisgonz\\Documents\\balloon_data.txt", 10, 10);
 	}
 	
 	@Test
@@ -34,4 +35,9 @@ public class AppTest {
 		System.out.println(s);
 	}
 	
+	@Test
+	@Ignore
+	public void test_main_generate_outputdata() {
+//		main(args);
+	}
 }

@@ -10,8 +10,8 @@ import mx.com.geekflu.weather.balloon.util.Constants;
  *
  */
 public class Statistics {
-	private Integer minTemperature;
-	private Integer maxTemperature;
+	private Float minTemperature;
+	private Float maxTemperature;
 	private Float meanTemperature;
 	private HashMap<String, Integer> observationsByObservatory;
 	private Double totalDistanceTravelled;
@@ -23,16 +23,16 @@ public class Statistics {
 		this.observationsByObservatory.put(Constants.OBSERVATORY_OTHERS, 0);
 		this.observationsByObservatory.put(Constants.OBSERVATORY_US, 0);
 	}
-	public Integer getMinTemperature() {
+	public Float getMinTemperature() {
 		return minTemperature;
 	}
-	public void setMinTemperature(Integer minTemperature) {
+	public void setMinTemperature(Float minTemperature) {
 		this.minTemperature = minTemperature;
 	}
-	public Integer getMaxTemperature() {
+	public Float getMaxTemperature() {
 		return maxTemperature;
 	}
-	public void setMaxTemperature(Integer maxTemperature) {
+	public void setMaxTemperature(Float maxTemperature) {
 		this.maxTemperature = maxTemperature;
 	}
 	public Float getMeanTemperature() {

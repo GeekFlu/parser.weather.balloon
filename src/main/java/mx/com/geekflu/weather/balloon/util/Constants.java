@@ -29,6 +29,7 @@ public class Constants {
 	public static final String OBSERVATORY_US = "US";
 	public static final String OBSERVATORY_FR = "FR";
 	public static final String OBSERVATORY_OTHERS = "OTHERS";
+	public static final Float KELVIN = 273.15f;
 	
 	public static String[] OBSERVATORIES_NAME = {"AU", "US", "FR", "OTHERS"};
 	public static Map<String, Observatory> OBSERVATORIES = new HashMap<>();

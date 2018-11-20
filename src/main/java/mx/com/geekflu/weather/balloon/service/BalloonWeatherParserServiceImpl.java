@@ -18,22 +18,24 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import mx.com.geekflu.weather.balloon.model.DataRow;
 import mx.com.geekflu.weather.balloon.model.Statistics;
 import mx.com.geekflu.weather.balloon.util.Constants;
+import mx.com.geekflu.weather.balloon.util.Converters;
 
 /**
  * 
  * @author Luis E. Gonzalez
  *
  */
-public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserService {
+public class BalloonWeatherParserServiceImpl extends Converters implements BalloonWeatherParserService  {
 
 	private ExecutorService executorService = Executors.newFixedThreadPool(5);
 	private DataRow minTemp;
 	private DataRow maxTemp;
-	private Float currentTempSum = 0.0f;
+	private Double currentTempSum = 0.0;
 	private Double currentDistanceSum = 0.0;
 
 	@Override
@@ -50,22 +52,16 @@ public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserServ
 				String line = sc.nextLine();
 				dataBlock.add(getRow(line));
 				if(dataBlock.size() > Constants.DEFAULT_SIZE_BLOCK) {
-					updateCurrentMinTemp(dataBlock);
-					updateCurrentMaxTemp(dataBlock);
-					this.currentTempSum += dataBlock.stream().mapToInt(row -> row.getTemperature()).sum();
-					calculateDistanceBetweenPoint(dataBlock);
-					countObservationsByObs(dataBlock, st);
-					counter += dataBlock.size();
+					List<DataRow> convertedDataBlock = convertAndMergeData(dataBlock, temperatureUnit);
+					applyRules(convertedDataBlock, st, distanceUnit);
+					counter += convertedDataBlock.size();
 					dataBlock.clear();
 				}
 			}
 			if(dataBlock.size() > 0) {
-				updateCurrentMinTemp(dataBlock);
-				updateCurrentMaxTemp(dataBlock);
-				this.currentTempSum += dataBlock.stream().mapToInt(row -> row.getTemperature()).sum();
-				calculateDistanceBetweenPoint(dataBlock);
-				countObservationsByObs(dataBlock, st);
-				counter += dataBlock.size();
+				List<DataRow> convertedDataBlock = convertAndMergeData(dataBlock, temperatureUnit);
+				applyRules(convertedDataBlock, st, distanceUnit);
+				counter += convertedDataBlock.size();
 				dataBlock.clear();
 			}
 			if (sc.ioException() != null) {
@@ -73,7 +69,7 @@ public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserServ
 			}
 			st.setMaxTemperature(this.maxTemp.getTemperature());
 			st.setMinTemperature(this.minTemp.getTemperature());
-			st.setMeanTemperature(this.currentTempSum / counter);
+			st.setMeanTemperature((float) (this.currentTempSum / counter));
 			st.setTotalDistanceTravelled(this.currentDistanceSum);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -92,6 +88,20 @@ public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserServ
 			}
 		}
 		return st;
+	}
+
+
+	private void applyRules(List<DataRow> convertedDataBlock, Statistics st, String distanceUnit) {
+		updateCurrentMinTemp(convertedDataBlock);
+		updateCurrentMaxTemp(convertedDataBlock);
+		updateCurrentTempSum(convertedDataBlock);
+		calculateDistanceBetweenPoint(convertedDataBlock, distanceUnit);
+		countObservationsByObs(convertedDataBlock, st);
+	}
+
+
+	private void updateCurrentTempSum(List<DataRow> dataBlock) {
+		this.currentTempSum += dataBlock.stream().mapToDouble(row -> row.getTemperature()).sum();
 	}
 
 
@@ -121,7 +131,7 @@ public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserServ
 		}
 	}
 
-	private void calculateDistanceBetweenPoint(List<DataRow> dataBlock) {
+	private void calculateDistanceBetweenPoint(List<DataRow> dataBlock, String distanceUnit) {
 		for(int i = 0; i < dataBlock.size() - 1 ; i++) {
 			DataRow p2 = dataBlock.get(i + 1);
 			DataRow p1 = dataBlock.get(i);
@@ -146,7 +156,7 @@ public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserServ
 		d.setX(Integer.parseInt(coors[0]));
 		d.setY(Integer.parseInt(coors[1]));
 		
-		d.setTemperature(Integer.parseInt(data[2]));
+		d.setTemperature(Float.parseFloat(data[2]));
 		d.setObservatory(data[3]);
 		return d;
 	}
@@ -202,6 +212,33 @@ public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserServ
 		}
 	}
 	
+	private List<DataRow> convertAndMergeData(List<DataRow> dataBlock, String temperatureUnit) {
+		List<DataRow> obsAU = dataBlock.stream().filter(row -> row.getObservatory().equalsIgnoreCase(Constants.OBSERVATORY_AU)).collect(Collectors.toList());
+		List<DataRow> obsUS = dataBlock.stream().filter(row -> row.getObservatory().equalsIgnoreCase(Constants.OBSERVATORY_US)).collect(Collectors.toList());
+		List<DataRow> obsFR = dataBlock.stream().filter(row -> row.getObservatory().equalsIgnoreCase(Constants.OBSERVATORY_FR)).collect(Collectors.toList());
+		List<DataRow> obsOThers = dataBlock.stream().filter(row -> row.getObservatory().equalsIgnoreCase(Constants.OBSERVATORY_OTHERS)).collect(Collectors.toList());
+		//Convert to Kelvin AU c -> K y US F->K
+		if(temperatureUnit.equalsIgnoreCase(Constants.TEMPERATURE_UNIT_KELVIN)) {
+			obsAU.stream().forEach(convertFromCelsiusToKelvin);
+			obsUS.stream().forEach(convertFromFahrenheitToKelvin);
+		}else if(temperatureUnit.equalsIgnoreCase(Constants.TEMPERATURE_UNIT_CELSISUS)) {//Convert us F -> C y FR K -> C
+			obsUS.stream().forEach(convertFromFahrenheitToCelsius);
+			obsFR.stream().forEach(convertFromKelvinToCelsius);
+			obsOThers.stream().forEach(convertFromKelvinToCelsius);
+		}else if(temperatureUnit.equalsIgnoreCase(Constants.TEMPERATURE_UNIT_FAHRENHEIT)) {
+			obsAU.stream().forEach(convertFromCelsiusToFahrenheit);
+			obsFR.stream().forEach(convertFromKelvinToFahrenheit);
+			obsOThers.stream().forEach(convertFromKelvinToFahrenheit);
+		}
+		List<DataRow> convertedData = new ArrayList<>();
+		convertedData.addAll(obsAU);
+		convertedData.addAll(obsUS);
+		convertedData.addAll(obsFR);
+		convertedData.addAll(obsOThers);
+		return convertedData;
+	}
+
+
 	private void updateCurrentMinTemp(List<DataRow> dataBlock) {
 		DataRow rMin = dataBlock.stream().min(Comparator.comparing(DataRow::getTemperature)).orElse(null);
 		if(this.minTemp != null &&
@@ -212,7 +249,7 @@ public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserServ
 			this.minTemp = rMin;
 		}
 	}
-
+	
 }
 
 

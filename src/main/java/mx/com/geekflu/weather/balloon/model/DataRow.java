@@ -9,7 +9,7 @@ public class DataRow {
 	private String timeStamp;
 	private int x;
 	private int y;
-	private int temperature;
+	private Float temperature;
 	private String observatory;
 	public String getTimeStamp() {
 		return timeStamp;
@@ -29,10 +29,10 @@ public class DataRow {
 	public void setY(int y) {
 		this.y = y;
 	}
-	public int getTemperature() {
+	public Float getTemperature() {
 		return temperature;
 	}
-	public void setTemperature(int temperature) {
+	public void setTemperature(Float temperature) {
 		this.temperature = temperature;
 	}
 	public String getObservatory() {
@@ -41,4 +41,10 @@ public class DataRow {
 	public void setObservatory(String observatory) {
 		this.observatory = observatory;
 	}
+	@Override
+	public String toString() {
+		return "DataRow [timeStamp=" + timeStamp + ", x=" + x + ", y=" + y + ", temperature=" + temperature
+				+ ", observatory=" + observatory + "]";
+	}
+	
 }
