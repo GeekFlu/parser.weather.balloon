@@ -26,18 +26,20 @@ public class AppTest extends WeatherBalloonStatistics {
 	@Test
 	@Ignore
 	public void generate_random_data() {
-		balloonService.generateData("C:\\Users\\luisgonz\\Documents\\balloon_data.txt", 10, 10);
+		balloonService.generateData("C:\\Users\\luisgonz\\Documents\\balloon_data.txt", 100000, 10);
 	}
 	
 	@Test
 	public void generate_statistics() {
 		Statistics s = balloonService.calculateAndGenerateOutput("C:\\Users\\luisgonz\\Documents\\balloon_data.txt", Constants.DISTANCE_UNIT_METER, Constants.TEMPERATURE_UNIT_CELSISUS);
+		System.out.println(String.format("Distance in %s and temperature in %s", Constants.DISTANCE_UNIT_METER, Constants.TEMPERATURE_UNIT_CELSISUS));
 		System.out.println(s);
 	}
 	
 	@Test
 	@Ignore
 	public void test_main_generate_outputdata() {
-//		main(args);
+		String[] args = {"--command=meanTemp,maxTemp"};
+		main(args);
 	}
 }

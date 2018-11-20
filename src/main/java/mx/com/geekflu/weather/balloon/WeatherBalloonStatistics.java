@@ -49,7 +49,6 @@ public class WeatherBalloonStatistics {
 		
 		String accessLogPath = null;
 		String fileDataPath = null;
-		String commands[] = null;
 		int percentage = 10;
 		String distanceUnit = null;
 		String tempUnit = null;

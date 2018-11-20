@@ -9,8 +9,8 @@ import java.util.Map;
 import mx.com.geekflu.weather.balloon.model.Observatory;
 
 public class Constants {
-	public static final int MIN = 0;
-	public static final int MAX = 1000;
+	public static final int MIN = -50;
+	public static final int MAX = 50;
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm");
 	
 	public static final String PIPE = "|";

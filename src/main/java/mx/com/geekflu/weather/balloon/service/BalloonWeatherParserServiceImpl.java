@@ -54,6 +54,7 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 				if(dataBlock.size() > Constants.DEFAULT_SIZE_BLOCK) {
 					List<DataRow> convertedDataBlock = convertAndMergeData(dataBlock, temperatureUnit);
 					applyRules(convertedDataBlock, st, distanceUnit);
+					writeDate2File(filePath, convertedDataBlock);
 					counter += convertedDataBlock.size();
 					dataBlock.clear();
 				}
@@ -61,6 +62,7 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 			if(dataBlock.size() > 0) {
 				List<DataRow> convertedDataBlock = convertAndMergeData(dataBlock, temperatureUnit);
 				applyRules(convertedDataBlock, st, distanceUnit);
+				writeDate2File(filePath, convertedDataBlock);
 				counter += convertedDataBlock.size();
 				dataBlock.clear();
 			}
@@ -88,6 +90,34 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 			}
 		}
 		return st;
+	}
+
+	/**
+	 * <timestamp>|<location>|<temperature>|<observatory>
+	 * @param filePath
+	 * @param convertedDataBlock
+	 */
+	private void writeDate2File(String filePath, List<DataRow> convertedDataBlock) {
+		Writer fstream = null;
+		try {
+			fstream = new OutputStreamWriter(new FileOutputStream(filePath.concat(".out"), true), StandardCharsets.UTF_8);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			convertedDataBlock.stream().forEach(row -> {
+				String f = "%s|%d,%d|%f|%s";
+				try {
+					bw.write(String.format(f, row.getTimeStamp(), row.getX(), row.getY(), row.getTemperature(), row.getObservatory()));
+					bw.newLine();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			bw.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 
