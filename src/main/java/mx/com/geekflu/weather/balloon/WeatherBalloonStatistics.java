@@ -24,7 +24,9 @@ import mx.com.geekflu.weather.balloon.util.Constants;
 public class WeatherBalloonStatistics {
 	private static final String START_ACCESS_LOG_ARGUMENT = "balloonWeatherInfoFile";
 	private static final CharSequence START_COMMAND_ARGUMENT = "command";
-	private static final CharSequence START_GENERATE_DATA_ARGUMENT = "command";
+	private static final CharSequence START_GENERATE_DATA_ARGUMENT = "generate-data";
+	private static final String START_DISTANCE_UNIT_ARGUMENT = "distance-unit";
+	private static final String START_TEMPERATURE_UNIT_ARGUMENT = "temperature-unit";
 	private static final Map<String, String> COMMAND_MAP = new HashMap<>();
 	private static final String FAKE_DATA_PERCENTAGE = "fakeDataPercentage";
 
@@ -49,7 +51,10 @@ public class WeatherBalloonStatistics {
 		String fileDataPath = null;
 		String commands[] = null;
 		int percentage = 10;
-
+		String distanceUnit = null;
+		String tempUnit = null;
+		
+		
 		try {
 			for (String arg : args) {
 				if (arg.trim().contains(START_ACCESS_LOG_ARGUMENT)) {
@@ -71,13 +76,32 @@ public class WeatherBalloonStatistics {
 					} catch (NumberFormatException e) {
 						percentage = 10;
 					}
+				}else if(arg.trim().contains(START_DISTANCE_UNIT_ARGUMENT)) {
+					distanceUnit =  getValue(arg.trim());
+					if(distanceUnit != null && 
+							(!distanceUnit.equalsIgnoreCase(Constants.DISTANCE_UNIT_METER) ||
+							 !distanceUnit.equalsIgnoreCase(Constants.DISTANCE_UNIT_KM) ||
+							 !distanceUnit.equalsIgnoreCase(Constants.DISTANCE_UNIT_MILES)
+					)) {
+						System.out.println("Default Distance unit: m");
+						distanceUnit = Constants.DISTANCE_UNIT_METER;
+					}
+				}else if(arg.trim().contains(START_TEMPERATURE_UNIT_ARGUMENT)) {
+					tempUnit = getValue(arg.trim());
+					if(tempUnit != null && 
+							(!tempUnit.equalsIgnoreCase(Constants.TEMPERATURE_UNIT_CELSISUS) ||
+							 !tempUnit.equalsIgnoreCase(Constants.TEMPERATURE_UNIT_FAHRENHEIT) ||
+							 !tempUnit.equalsIgnoreCase(Constants.TEMPERATURE_UNIT_KELVIN))) {
+						System.out.println("Default temperature unit: celsius");
+						tempUnit = Constants.TEMPERATURE_UNIT_CELSISUS;
+					}
 				}
 			}
 
 			if (isGenerateFileData) {
 				ballonService.generateData(fileDataPath, percentage, percentage);
 			} else if(isAccessLog && isAtLeastOneCommand){
-				
+				ballonService.readData(fileDataPath, distanceUnit, tempUnit);
 			}else {
 				System.out.println("More arguments needed, these are required: [accesslog]");
 				System.exit(0);

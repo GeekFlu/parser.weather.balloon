@@ -1,12 +1,13 @@
 package mx.com.geekflu.weather.balloon.service;
 
-import java.util.List;
+import mx.com.geekflu.weather.balloon.model.Statistics;
 
-import mx.com.geekflu.weather.balloon.model.DataRow;
-
+/**
+ * 
+ * @author Luis E. Gonzalez
+ *
+ */
 public interface BalloonWeatherParserService {
-	
-	List<DataRow> readData();
+	Statistics calculateAndGenerateOutput(String filePath, String distanceUnit, String temperatureUnit);
 	void generateData(String filePath, int numLines2Generate, int fakeDataPercentage);
-
 }

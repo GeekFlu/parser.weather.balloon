@@ -12,15 +12,26 @@ public class Constants {
 	public static final int MIN = 0;
 	public static final int MAX = 1000;
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm");
+	
 	public static final String PIPE = "|";
 	public static final String COMMA = ",";
+	
+	public static final String DISTANCE_UNIT_KM = "km";
+	public static final String DISTANCE_UNIT_MILES = "miles";
+	public static final String DISTANCE_UNIT_METER = "m";
+
+	public static final String TEMPERATURE_UNIT_CELSISUS = "celsius";
+	public static final String TEMPERATURE_UNIT_FAHRENHEIT = "fahrenheit";
+	public static final String TEMPERATURE_UNIT_KELVIN = "kelvin";
+	public static final int DEFAULT_SIZE_BLOCK = 5000;
+	
 	public static String[] OBSERVATORIES_NAME = {"AU", "US", "FR", "OTHERS"};
 	public static Map<String, Observatory> OBSERVATORIES = new HashMap<>();
 	static {
-		OBSERVATORIES.put("AU", new Observatory("AU", "celsius", "km"));
-		OBSERVATORIES.put("US", new Observatory("US", "fahrenheit", "miles"));
-		OBSERVATORIES.put("FR", new Observatory("FR", "kelvin", "m"));
-		OBSERVATORIES.put("Others", new Observatory("OTHERS", "kelvin", "km"));
+		OBSERVATORIES.put("AU", new Observatory("AU", TEMPERATURE_UNIT_CELSISUS, DISTANCE_UNIT_KM));
+		OBSERVATORIES.put("US", new Observatory("US", TEMPERATURE_UNIT_FAHRENHEIT, DISTANCE_UNIT_MILES));
+		OBSERVATORIES.put("FR", new Observatory("FR", TEMPERATURE_UNIT_KELVIN, DISTANCE_UNIT_METER));
+		OBSERVATORIES.put("OTHERS", new Observatory("OTHERS", TEMPERATURE_UNIT_KELVIN, DISTANCE_UNIT_KM));
 	}
 	
 	

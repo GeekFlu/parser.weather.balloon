@@ -1,6 +1,8 @@
 package mx.com.geekflu.weather.balloon.service;
 
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -9,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -16,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import mx.com.geekflu.weather.balloon.model.DataRow;
+import mx.com.geekflu.weather.balloon.model.Statistics;
 import mx.com.geekflu.weather.balloon.util.Constants;
 
 /**
@@ -28,8 +32,57 @@ public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserServ
 	private ExecutorService executorService = Executors.newFixedThreadPool(5);
 
 	@Override
-	public List<DataRow> readData() {
+	public Statistics calculateAndGenerateOutput(String filePath, String distanceUnit, String temperatureUnit) {
+		FileInputStream inputStream = null;
+		Scanner sc = null;
+		try {
+			inputStream = new FileInputStream(filePath);
+			sc = new Scanner(inputStream, StandardCharsets.UTF_8.name());
+			List<DataRow> dataBlock = new ArrayList<>();
+			Statistics st = new Statistics();
+			while (sc.hasNextLine()) {
+				String line = sc.nextLine();
+				dataBlock.add(getRow(line));
+				if(dataBlock.size() > Constants.DEFAULT_SIZE_BLOCK) {
+					Integer min = getMin(dataBlock);
+					Integer max = getMax(dataBlock);
+				}
+			}
+			if (sc.ioException() != null) {
+				throw sc.ioException();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (sc != null) {
+				sc.close();
+			}
+		}
 		return null;
+	}
+
+	/**
+	 * @author Luis E. Gonzalez <timestamp>|<location>|<temperature>|<observatory>
+	 * @param line
+	 * @return
+	 */
+	private DataRow getRow(String line) {
+		String[] data = line.split("\\|");
+		DataRow d = new DataRow();
+		d.setTimeStamp(data[0]);
+		d.setLocation(data[1]);
+		d.setTemperature(data[2]);
+		d.setObservatory(data[3]);
+		return d;
 	}
 
 	@Override
@@ -37,7 +90,8 @@ public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserServ
 		try {
 			Writer fstream = new OutputStreamWriter(new FileOutputStream(filePath), StandardCharsets.UTF_8);
 			BufferedWriter bw = new BufferedWriter(fstream);
-			for(Future<List<String>> f : executorService.invokeAll(splitDataInWorkers(numLines2Generate, fakeDataPercentage))) {
+			for (Future<List<String>> f : executorService
+					.invokeAll(splitDataInWorkers(numLines2Generate, fakeDataPercentage))) {
 				List<String> ls = f.get();
 				ls.stream().forEach(line -> {
 					try {
@@ -71,11 +125,17 @@ public class BalloonWeatherParserServiceImpl implements BalloonWeatherParserServ
 		return l;
 	}
 
-	public static void main(String[] args) {
-		System.out.println(6543 % 5);
+	private Integer getMax(List<String> temps) {
+		return temps.stream().mapToInt(number -> Integer.parseInt(number)).max().orElse(Integer.MIN_VALUE);
+	}
+	
+	private Integer getMin(List<String> temps) {
+		return temps.stream().mapToInt(number -> Integer.parseInt(number)).min().orElse(Integer.MAX_VALUE);
 	}
 
 }
+
+
 
 /**
  * 

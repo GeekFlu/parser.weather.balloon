@@ -9,29 +9,30 @@ import java.util.HashMap;
  *
  */
 public class Statistics {
-	private BigDecimal minTemperature;
-	private BigDecimal maxTemperature;
-	private BigDecimal meanTemperature;
+	private Integer minTemperature;
+	private Integer maxTemperature;
+	private Float meanTemperature;
 	private HashMap<String, Integer> observationsByObservatory;
 	private BigDecimal totalDistanceTravelled;
+	
 	public Statistics() {
 	}
-	public BigDecimal getMinTemperature() {
+	public Integer getMinTemperature() {
 		return minTemperature;
 	}
-	public void setMinTemperature(BigDecimal minTemperature) {
+	public void setMinTemperature(Integer minTemperature) {
 		this.minTemperature = minTemperature;
 	}
-	public BigDecimal getMaxTemperature() {
+	public Integer getMaxTemperature() {
 		return maxTemperature;
 	}
-	public void setMaxTemperature(BigDecimal maxTemperature) {
+	public void setMaxTemperature(Integer maxTemperature) {
 		this.maxTemperature = maxTemperature;
 	}
-	public BigDecimal getMeanTemperature() {
+	public Float getMeanTemperature() {
 		return meanTemperature;
 	}
-	public void setMeanTemperature(BigDecimal meanTemperature) {
+	public void setMeanTemperature(Float meanTemperature) {
 		this.meanTemperature = meanTemperature;
 	}
 	public HashMap<String, Integer> getObservationsByObservatory() {
@@ -46,12 +47,4 @@ public class Statistics {
 	public void setTotalDistanceTravelled(BigDecimal totalDistanceTravelled) {
 		this.totalDistanceTravelled = totalDistanceTravelled;
 	}
-	
-	@Override
-	public String toString() {
-		return "Statistics [minTemperature=" + minTemperature + ", maxTemperature=" + maxTemperature
-				+ ", meanTemperature=" + meanTemperature + ", observationsByObservatory=" + observationsByObservatory
-				+ ", totalDistanceTravelled=" + totalDistanceTravelled + "]";
-	}
-	
 }
