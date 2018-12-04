@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import mx.com.geekflu.weather.balloon.model.DataRow;
+import mx.com.geekflu.weather.balloon.model.ObervatoryEnum;
 import mx.com.geekflu.weather.balloon.model.Statistics;
 import mx.com.geekflu.weather.balloon.util.Constants;
 import mx.com.geekflu.weather.balloon.util.Converters;
@@ -37,6 +38,7 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 	private DataRow maxTemp;
 	private Double currentTempSum = 0.0;
 	private Double currentDistanceSum = 0.0;
+	private ObservatoryFilter obFilter = new ObservatoryFilter();
 
 	@Override
 	public Statistics calculateAndGenerateOutput(String filePath, String outputFile, String distanceUnit, String temperatureUnit) {
@@ -142,21 +144,22 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 	 */
 	private void countObservationsByObs(List<DataRow> dataBlock, Statistics st) {
 		for(DataRow r : dataBlock) {
-			if(r.getObservatory() != null) {
-				String o = r.getObservatory().trim();
-				if(o.equalsIgnoreCase(Constants.OBSERVATORY_AU)) {
-					st.getObservationsByObservatory()
-						.put(Constants.OBSERVATORY_AU, st.getObservationsByObservatory().get(Constants.OBSERVATORY_AU) + 1);
-				}else if(o.equalsIgnoreCase(Constants.OBSERVATORY_FR)) {
-					st.getObservationsByObservatory()
-					.put(Constants.OBSERVATORY_FR, st.getObservationsByObservatory().get(Constants.OBSERVATORY_FR) + 1);
-				}else if(o.equalsIgnoreCase(Constants.OBSERVATORY_US)) {
-					st.getObservationsByObservatory()
-					.put(Constants.OBSERVATORY_US, st.getObservationsByObservatory().get(Constants.OBSERVATORY_US) + 1);
-				}else {
-					st.getObservationsByObservatory()
-					.put(Constants.OBSERVATORY_OTHERS, st.getObservationsByObservatory().get(Constants.OBSERVATORY_OTHERS) + 1);
-				}
+			switch (r.getObservatory()) {
+			case AU:
+				st.getObservationsByObservatory().put(ObervatoryEnum.AU.toString(), st.getObservationsByObservatory().get(ObervatoryEnum.AU.toString()) + 1);
+				break;
+			case FR:
+				st.getObservationsByObservatory().put(ObervatoryEnum.FR.toString(), st.getObservationsByObservatory().get(ObervatoryEnum.FR.toString()) + 1);
+				break;
+			case US:
+				st.getObservationsByObservatory().put(ObervatoryEnum.US.toString(), st.getObservationsByObservatory().get(ObervatoryEnum.US.toString()) + 1);
+				break;
+			case OTHERS:
+				st.getObservationsByObservatory().put(ObervatoryEnum.OTHERS.toString(), st.getObservationsByObservatory().get(ObervatoryEnum.OTHERS.toString()) + 1);
+				break;
+			default:
+				st.getObservationsByObservatory().put(ObervatoryEnum.NA.toString(), st.getObservationsByObservatory().get(ObervatoryEnum.NA.toString()) + 1);
+				break;
 			}
 		}
 	}
@@ -187,7 +190,11 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 		d.setY(Integer.parseInt(coors[1]));
 		
 		d.setTemperature(Float.parseFloat(data[2]));
-		d.setObservatory(data[3]);
+		try {
+			d.setObservatory(ObervatoryEnum.valueOf(data[3]));
+		} catch (Exception e) {
+			d.setObservatory(ObervatoryEnum.NA);
+		}
 		return d;
 	}
 
@@ -243,10 +250,15 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 	}
 	
 	private List<DataRow> convertAndMergeData(List<DataRow> dataBlock, String temperatureUnit) {
-		List<DataRow> obsAU = dataBlock.stream().filter(row -> row.getObservatory().equalsIgnoreCase(Constants.OBSERVATORY_AU)).collect(Collectors.toList());
-		List<DataRow> obsUS = dataBlock.stream().filter(row -> row.getObservatory().equalsIgnoreCase(Constants.OBSERVATORY_US)).collect(Collectors.toList());
-		List<DataRow> obsFR = dataBlock.stream().filter(row -> row.getObservatory().equalsIgnoreCase(Constants.OBSERVATORY_FR)).collect(Collectors.toList());
-		List<DataRow> obsOThers = dataBlock.stream().filter(row -> row.getObservatory().equalsIgnoreCase(Constants.OBSERVATORY_OTHERS)).collect(Collectors.toList());
+		ObservatorySpecification auSpec = new ObservatorySpecification(ObervatoryEnum.AU); 
+		ObservatorySpecification usSpec = new ObservatorySpecification(ObervatoryEnum.US); 
+		ObservatorySpecification frSpec = new ObservatorySpecification(ObervatoryEnum.FR); 
+		ObservatorySpecification othersSpec = new ObservatorySpecification(ObervatoryEnum.OTHERS); 
+		List<DataRow> obsAU = obFilter.filter(dataBlock, auSpec).collect(Collectors.toList());
+		List<DataRow> obsFR = obFilter.filter(dataBlock, frSpec).collect(Collectors.toList());
+		List<DataRow> obsUS = obFilter.filter(dataBlock, usSpec).collect(Collectors.toList());
+		List<DataRow> obOthers = obFilter.filter(dataBlock, othersSpec).collect(Collectors.toList());
+		
 		//Convert to Kelvin AU c -> K y US F->K
 		if(temperatureUnit.equalsIgnoreCase(Constants.TEMPERATURE_UNIT_KELVIN)) {
 			obsAU.stream().forEach(convertFromCelsiusToKelvin);
@@ -254,17 +266,17 @@ public class BalloonWeatherParserServiceImpl extends Converters implements Ballo
 		}else if(temperatureUnit.equalsIgnoreCase(Constants.TEMPERATURE_UNIT_CELSISUS)) {//Convert us F -> C y FR K -> C
 			obsUS.stream().forEach(convertFromFahrenheitToCelsius);
 			obsFR.stream().forEach(convertFromKelvinToCelsius);
-			obsOThers.stream().forEach(convertFromKelvinToCelsius);
+			obOthers.stream().forEach(convertFromKelvinToCelsius);
 		}else if(temperatureUnit.equalsIgnoreCase(Constants.TEMPERATURE_UNIT_FAHRENHEIT)) {
 			obsAU.stream().forEach(convertFromCelsiusToFahrenheit);
 			obsFR.stream().forEach(convertFromKelvinToFahrenheit);
-			obsOThers.stream().forEach(convertFromKelvinToFahrenheit);
+			obOthers.stream().forEach(convertFromKelvinToFahrenheit);
 		}
 		List<DataRow> convertedData = new ArrayList<>();
 		convertedData.addAll(obsAU);
 		convertedData.addAll(obsUS);
 		convertedData.addAll(obsFR);
-		convertedData.addAll(obsOThers);
+		convertedData.addAll(obOthers);
 		return convertedData;
 	}
 

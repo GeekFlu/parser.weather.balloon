@@ -2,8 +2,6 @@ package mx.com.geekflu.weather.balloon.model;
 
 import java.util.HashMap;
 
-import mx.com.geekflu.weather.balloon.util.Constants;
-
 /**
  * 
  * @author luisgonz
@@ -18,10 +16,11 @@ public class Statistics {
 	
 	public Statistics() {
 		this.observationsByObservatory = new HashMap<>();
-		this.observationsByObservatory.put(Constants.OBSERVATORY_AU, 0);
-		this.observationsByObservatory.put(Constants.OBSERVATORY_FR, 0);
-		this.observationsByObservatory.put(Constants.OBSERVATORY_OTHERS, 0);
-		this.observationsByObservatory.put(Constants.OBSERVATORY_US, 0);
+		this.observationsByObservatory.put(ObervatoryEnum.AU.toString(), 0);
+		this.observationsByObservatory.put(ObervatoryEnum.FR.toString(), 0);
+		this.observationsByObservatory.put(ObervatoryEnum.OTHERS.toString(), 0);
+		this.observationsByObservatory.put(ObervatoryEnum.US.toString(), 0);
+		this.observationsByObservatory.put(ObervatoryEnum.NA.toString(), 0);
 	}
 	public Float getMinTemperature() {
 		return minTemperature;

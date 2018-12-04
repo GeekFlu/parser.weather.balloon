@@ -10,7 +10,7 @@ public class DataRow {
 	private int x;
 	private int y;
 	private Float temperature;
-	private String observatory;
+	private ObervatoryEnum observatory;
 	public String getTimeStamp() {
 		return timeStamp;
 	}
@@ -35,10 +35,10 @@ public class DataRow {
 	public void setTemperature(Float temperature) {
 		this.temperature = temperature;
 	}
-	public String getObservatory() {
+	public ObervatoryEnum getObservatory() {
 		return observatory;
 	}
-	public void setObservatory(String observatory) {
+	public void setObservatory(ObervatoryEnum observatory) {
 		this.observatory = observatory;
 	}
 	@Override
@@ -47,4 +47,14 @@ public class DataRow {
 				+ ", observatory=" + observatory + "]";
 	}
 	
+	
+	public static void main(String[] args) {
+		System.out.println(ObervatoryEnum.valueOf("OTHERS"));
+		System.out.println(ObervatoryEnum.valueOf("US"));
+		try {
+			System.out.println(ObervatoryEnum.valueOf("uso"));
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
 }
